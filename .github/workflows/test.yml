@@ -1,0 +1,27 @@
+on: [push, pull_request]
+name: Test
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Write netrc file for cueckoo Gerrithub
+      run: |-
+        cat <<EOD > ~/.netrc
+        machine review.gerrithub.io
+        login cueckoo
+        password ${{ secrets.CUECKOO_GERRITHUB_PASSWORD }}
+        EOD
+        chmod 600 ~/.netrc
+    - name: check netrc
+      run: cat ~/.netrc
+    - run: sha256sum ~/.netrc
+    - name: check git config
+      run: git config -l
+    - name: fetch
+      run: git clone "https://cueckoo@review.gerrithub.io/a/myitcvscratch/cue"
